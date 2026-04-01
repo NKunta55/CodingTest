@@ -1,0 +1,52 @@
+name: .NET CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    # ✅ Checkout code
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # ✅ Setup .NET
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '7.0.x'  # change if project uses different version
+
+    # ✅ Restore dependencies
+    - name: Restore dependencies
+      run: dotnet restore
+
+    # ✅ Build (with scripting example)
+    - name: Build project
+      run: |
+        echo "Building the application..."
+        dotnet build --no-restore --configuration Release
+
+    # ✅ Run Unit Tests and generate results
+    - name: Run tests
+      run: |
+        echo "Running unit tests..."
+        dotnet test --no-build --configuration Release \
+          --logger "trx;LogFileName=test-results.trx"
+
+    # ✅ Upload test results (so they appear in GitHub UI)
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: "**/*.trx"
+
+    # ✅ Log message (required by task)
+    - name: Deployment placeholder
+      run: echo "TODO – Deployment"
